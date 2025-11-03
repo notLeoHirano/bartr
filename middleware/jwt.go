@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// secret key
 var jwtSecret = []byte("your-secret-key-change-this-in-production")
 
 type Claims struct {

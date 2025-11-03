@@ -110,6 +110,8 @@ func (db *DB) Init() error {
 	return nil
 }
 
+
+// seed functions
 func (db *DB) seedUsers() error {
 	var count int
 	if err := db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count); err != nil {
