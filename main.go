@@ -1,45 +1,79 @@
 package main
 
 import (
-	"database/sql"
-	"time"
+	"log"
 
-	_ "modernc.org/sqlite"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/notLeoHirano/bartr/database"
+	"github.com/notLeoHirano/bartr/handlers"
+	"github.com/notLeoHirano/bartr/middleware"
+	"github.com/notLeoHirano/bartr/service"
+	"github.com/notLeoHirano/bartr/store"
 )
 
-type Item struct {
-	ID          int       `json:"id"`
-	UserID      int       `json:"user_id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Category    string    `json:"category"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
-type Swipe struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"user_id"`
-	ItemID    int       `json:"item_id"`
-	Direction string    `json:"direction"` // "left" or "right"
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type Match struct {
-	ID        int       `json:"id"`
-	User1ID   int       `json:"user1_id"`
-	User2ID   int       `json:"user2_id"`
-	Item1ID   int       `json:"item1_id"`
-	Item2ID   int       `json:"item2_id"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-type ItemWithOwner struct {
-	Item
-	OwnerName string `json:"owner_name"`
-}
-
-var db *sql.DB
-
 func main() {
+	// Initialize database
+	db, err := database.New("./bartr.db")
+	if err != nil {
+		log.Fatal("Failed to open database:", err)
+	}
+	defer db.Close()
 
+	if err := db.Init(); err != nil {
+		log.Fatal("Failed to initialize database:", err)
+	}
+
+	// Initialize layers
+	st := store.New(db.DB)
+	svc := service.New(st)
+	handler := handlers.New(svc)
+
+	// Setup router
+	r := gin.Default()
+	
+	// CORS must be first
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: false,
+		MaxAge:           12 * 3600,
+	}))
+
+	// Public routes
+	auth := r.Group("/auth")
+	{
+		auth.POST("/register", handler.Register)
+		auth.POST("/login", handler.Login)
+	}
+
+	// Protected routes
+	api := r.Group("/")
+	api.Use(middleware.AuthRequired())
+	{
+		// User
+		api.GET("/me", handler.GetMe)
+
+		// Items
+		api.GET("/items", handler.GetItems)
+		api.POST("/items", handler.CreateItem)
+		api.DELETE("/items/:id", handler.DeleteItem)
+
+		// Swipes
+		api.POST("/swipes", handler.CreateSwipe)
+
+		// Matches
+		api.GET("/matches", handler.GetMatches)
+
+		// Comments
+		api.POST("/comments", handler.CreateComment)
+		api.GET("/matches/:match_id/comments", handler.GetComments)
+	}
+
+	log.Println("Server starting on :8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal("Failed to start server:", err)
+	}
 }
