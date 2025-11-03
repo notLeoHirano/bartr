@@ -59,8 +59,8 @@ All endpoints except /register and /login require a JWT token to be passed in th
 
 | Method | Endpoint   | Description                | Auth Required |
 |--------|------------|----------------------------|---------------|
-| POST   | /register  | Create a new user account  | No            |
-| POST   | /login     | Login and get a JWT token  | No            |
+| POST   | /auth/register  | Create a new user account  | No            |
+| POST   | /auth/login     | Login and get a JWT token  | No            |
 
 ### Items
 
@@ -89,7 +89,7 @@ All endpoints except /register and /login require a JWT token to be passed in th
 ### Register
 
 ```bash
-curl -X POST http://localhost:8080/register \
+curl -X POST http://localhost:8080/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Alice",
@@ -101,7 +101,7 @@ curl -X POST http://localhost:8080/register \
 ### Login
 
 ```bash
-curl -X POST http://localhost:8080/login \
+curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "alice@example.com",
