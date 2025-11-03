@@ -66,7 +66,7 @@ All endpoints except /register and /login require a JWT token to be passed in th
 
 | Method | Endpoint     | Description                                                        | Auth Required |
 |--------|-------------|--------------------------------------------------------------------|---------------|
-| GET    | /items      | List all items (excludes user's own items and items already swiped on) | Yes           |
+| GET    | /items      | List all items (besides user's) | Yes           |
 | POST   | /items      | Create a new item                                                   | Yes           |
 | DELETE | /items/:id  | Delete one of your items                                           | Yes           |
 
