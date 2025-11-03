@@ -6,7 +6,7 @@ A full-stack web application that allows users to swipe through items posted by 
 
 ### Prerequisites
 
-- Go 1.21 or higher
+- A recent version of Go
 
 - A modern web browser
 
@@ -15,7 +15,7 @@ A full-stack web application that allows users to swipe through items posted by 
 1. Clone the repository:
   
   ```bash
-  git clone [https://github.com/notLeoHirano/bartr.git](https://github.com/notLeoHirano/bartr.git)
+  git clone https://github.com/notLeoHirano/bartr.git
   cd bartr
   ```
 
